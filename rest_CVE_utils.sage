@@ -1,7 +1,8 @@
 #Key generation
-def key_gen(Fq,n,r):
+def key_gen(Fq,m,n,r):
+    set_random_seed();
     Htr_unsys = random_matrix(Fq,n-r,r); #public matrix (only non-systematic portion)
-    e = rnd_restricted_vector(Fq,n);
+    e = rnd_restricted_vector(Fq,m,n);
     
     #compute syndrome
     s = e[0,0:r] + e[0,r:n]*Htr_unsys;
@@ -9,35 +10,35 @@ def key_gen(Fq,n,r):
 
 ##################################################################
 
-#Generate a random vector made of +1 and -1
-def rnd_restricted_vector(Fq,n):
-    a = convert_restricted(Fq,random_matrix(GF(2),1,n),n);
+#Generate a random vector made of elements in the restricted set (zero=True (default) if 0 can be included in the vector, False if not)
+def rnd_restricted_vector(Fq,m,n,zero=True):
+    
+    #Define estricted set
+    E = [Fq(m)^i for i in range(multiplicative_order(Fq(m)))];
+    if zero:    E.insert(0,0); #Add the 0 element to the set
+    #Generate random restricted vector
+    a = matrix(Fq,1,n);
+    for i in range(0,n):
+        a[0,i] = choice(E);
+    
     return a;
 
 ##################################################################
-
-#Convert binary string to \pm 1 over Fq
-def convert_restricted(Fq,a,n):
-    b = a.change_ring(ZZ);
-    b = 2*b-ones_matrix(ZZ,1,n);
-    b = b.change_ring(Fq);
-    return b;
-
-##################################################################    
+ 
 
 #Apply restricted monomial transformation
 def apply_rest_monomial(Fq,tau_perm, tau_values, a, n):
     b = matrix(Fq,1,n);
     for i in range(0,n):
         p = tau_perm[i];
-        b[0,i] = tau_values[0,p]*a[0,p]; #tau_values[0,p] andrebbe diviso, ma tanto è composto da +1(1) e -1(30), e la divisione corrisponde al quadrato (1*1=1/1=1,-1*-1=-1/-1=1)
+        b[0,i] = tau_values[0,p]*a[0,p];
     return b;
 
 ##################################################################
 
 #Apply inverse of restricted monomial transformation
 def apply_inv_rest_monomial(Fq,tau_perm, tau_values, a, n):
-    b = matrix(Fq,1, n);
+    b = matrix(Fq,1,n);
     for i in range(0, n):
         p = tau_perm[i];
         b[0,p] = a[0,i]/tau_values[0,p];
@@ -46,7 +47,7 @@ def apply_inv_rest_monomial(Fq,tau_perm, tau_values, a, n):
 ##################################################################
 
 ##Simulate one round of the protocol
-def one_round_sim(Fq,n,r,e,Htr_unsys,s):
+def one_round_sim(Fq,m,n,r,e,Htr_unsys,s):
     
     ok=0;
     
@@ -55,7 +56,7 @@ def one_round_sim(Fq,n,r,e,Htr_unsys,s):
     set_random_seed();
     tau_seed = initial_seed();
     tau_perm = P.random_element();
-    tau_values  = rnd_restricted_vector(Fq,n);
+    tau_values  = rnd_restricted_vector(Fq,m,n,False); #0 cannot be included in the value vector
 
     tau_e = apply_rest_monomial(Fq,tau_perm,tau_values,e,n);
     tau_u = apply_rest_monomial(Fq,tau_perm,tau_values,u,n);
@@ -82,13 +83,16 @@ def one_round_sim(Fq,n,r,e,Htr_unsys,s):
 
     ##Verifier chooses b
     b = GF(2).random_element();
+    b=0;
 
     #Creating response
     if b==0:
         ##Calculating tau from seed
         set_random_seed(tau_seed);
         tau_perm_verifier = P.random_element();
-        tau_values_verifier  = rnd_restricted_vector(Fq,n);
+        tau_values_verifier  = rnd_restricted_vector(Fq,m,n,False); #0 cannot be included in the value vector
+        if tau_values == tau_values_verifier: print(True);
+        else: print(False);
         
         tau_inv_y = apply_inv_rest_monomial(Fq,tau_perm_verifier,tau_values_verifier,y,n);
         final_val = tau_inv_y[0,0:r]+tau_inv_y[0,r:n]*Htr_unsys-z*s;
@@ -110,7 +114,7 @@ def one_round_sim(Fq,n,r,e,Htr_unsys,s):
 
 ########################################################################
 
-def multiple_rounds_sim(Fq,n,r,e,Htr_unsys,s,N):
+def multiple_rounds_sim(Fq,m,n,r,e,Htr_unsys,s,N):
 
 
     ##Generating N committments
@@ -130,7 +134,7 @@ def multiple_rounds_sim(Fq,n,r,e,Htr_unsys,s,N):
         set_random_seed();
         tau_seed = initial_seed();
         tau_perm = P.random_element();
-        tau_values = rnd_restricted_vector(Fq,n);
+        tau_values = rnd_restricted_vector(Fq,m,n,False); #0 cannot be included in the value vector
 
         #Apply monomial to tau_e and tau_u
         tau_e = apply_rest_monomial(Fq,tau_perm,tau_values,e,n);
@@ -166,6 +170,16 @@ def multiple_rounds_sim(Fq,n,r,e,Htr_unsys,s,N):
     big_c = big_c.hexdigest();
     big_c_dec = Integer(big_c, 16);
     big_c_bin = big_c_dec.digits(2); #Hashed commitment is converted from HEX to BIN ('list' object from LSB to MSB)
+
+    #Re-Hashing of final commitment (if bits are not enough)
+    big_c_2 = hashlib.sha256();
+    big_c_2.update(big_c.encode('utf-8'));
+    big_c_2 = big_c_2.hexdigest();
+    big_c_2_dec = Integer(big_c_2, 16);
+    big_c_2_bin = big_c_2_dec.digits(2);
+    big_c_bin = Integer(''.join(str(e) for e in big_c_bin)+''.join(str(e) for e in big_c_2_bin)).digits(2); #Hashed commitment is converted from HEX to BIN ('list' object from LSB to MSB)
+
+    
     
     #verification over N rounds starts    
     verifier_c_before_hash=''
@@ -173,21 +187,21 @@ def multiple_rounds_sim(Fq,n,r,e,Htr_unsys,s,N):
     for j in range(0,N):
 
         ##Verifier chooses z
-        z = Fq_star.random_element();
+        z = big_c_bin[2*j];
 
         #Prover computes y
         y = tau_u_matrix[j,:]+z*tau_e_matrix[j,:];
 
         ##Challenge bit b is chosen from hashed commitment (from LSB to MSB)
-        b = big_c_bin[j];
+        b = big_c_bin[2*j+1];
 
-        #Creating response: for each value of b, we also sen the opposite hash commitment
+        #Creating response: for each value of b, we also send the opposite hash commitment
         if b==0:
             #Calculating tau from seeds
             tau_seed = tau_seed_matrix[j,0];
             set_random_seed(tau_seed);
             tau_perm_verifier = P.random_element();
-            tau_values_verifier  = rnd_restricted_vector(Fq,n);
+            tau_values_verifier  = rnd_restricted_vector(Fq,m,n,False); #0 cannot be included in the value vector
             
             tau_inv_y = apply_inv_rest_monomial(Fq,vector(tau_perm_verifier),tau_values_verifier,y,n);
             final_val = tau_inv_y[0,0:r]+tau_inv_y[0,r:n]*Htr_unsys-z*s;
@@ -216,12 +230,8 @@ def multiple_rounds_sim(Fq,n,r,e,Htr_unsys,s,N):
         ok = 0;
     return(ok);    
     
-    
-    
-#Zq = Integers(31)
-#E = [Zq(2)^i for i in range(multiplicative_order(Zq(2)))]
+
 
 
 #pensa a come implementare merkle tree
 
-#fai b con hash m,commitment
