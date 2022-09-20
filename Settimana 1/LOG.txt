@@ -1,0 +1,15 @@
+data inizio: 20/09
+data fine: 
+
+Punto di partenza: 
+Script di Paolo, leggermente modificati per aggiungere ottimizzazioni (hash + seed)
+
+Cose da fare:
+1) Ottenere bit di challenge (b) e intero z dall'hash di messaggio + commitment.
+2) Generalizzare insieme ristretto di interi, ottenuto con le potenze di un elemento di Fq:
+	#Zq = Integers(31)
+	#E = [Zq(2)^i for i in range(multiplicative_order(Zq(2)))]
+
+   In questo modo, moltiplicazioni tra elementi di questo insieme danno altri elementi dell'insieme,
+   perciò monomiali (tao) ristretti danno vettori i cui elementi sono ristretti.
+3) Iniziare a vedere come implementare merkle tree su SageMath.
