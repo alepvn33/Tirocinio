@@ -12,7 +12,7 @@ def key_gen(Fq,m,n,r):
 
 #Generate a random vector made of elements in the restricted set (zero=True (default) if 0 can be included in the vector, False if not)
 def rnd_restricted_vector(Fq,m,n,zero=True):
-    
+
     #Define estricted set
     E = [Fq(m)^i for i in range(multiplicative_order(Fq(m)))];
     if zero:    E.insert(0,0); #Add the 0 element to the set
@@ -43,6 +43,14 @@ def apply_inv_rest_monomial(Fq,tau_perm, tau_values, a, n):
         p = tau_perm[i];
         b[0,p] = a[0,i]/tau_values[0,p];
     return b;    
+
+##################################################################
+
+#Convert a hexadecimal string into a binary list (from LSB to MSB)
+def hex_to_bin(hex):
+    dec = Integer(hex, 16); #From HEX to DEC
+    bin = dec.digits(2); #From HEX to BIN
+    return bin
 
 ##################################################################
 
@@ -91,8 +99,6 @@ def one_round_sim(Fq,m,n,r,e,Htr_unsys,s):
         set_random_seed(tau_seed);
         tau_perm_verifier = P.random_element();
         tau_values_verifier  = rnd_restricted_vector(Fq,m,n,False); #0 cannot be included in the value vector
-        if tau_values == tau_values_verifier: print(True);
-        else: print(False);
         
         tau_inv_y = apply_inv_rest_monomial(Fq,tau_perm_verifier,tau_values_verifier,y,n);
         final_val = tau_inv_y[0,0:r]+tau_inv_y[0,r:n]*Htr_unsys-z*s;
@@ -114,11 +120,11 @@ def one_round_sim(Fq,m,n,r,e,Htr_unsys,s):
 
 ########################################################################
 
-def multiple_rounds_sim(Fq,m,n,r,e,Htr_unsys,s,N):
+def multiple_rounds_sim(Fq,mex,m,n,r,e,Htr_unsys,s,N):
 
 
     ##Generating N committments
-    big_c_before_hash = ''; #it is the overall commitment
+    big_c_before_hash = str(mex); #it is the overall commitment, initialized with the message to be signed
     tau_u_matrix = matrix(Fq,N,n); #it contains the N vectors u, for all rounds
     tau_perm_matrix = matrix(ZZ,N,n); #it contains the N permutations, for all rounds
     tau_values_matrix = matrix(Fq,N,n); #it contains the N scaling vectors, for all rounds
@@ -168,21 +174,23 @@ def multiple_rounds_sim(Fq,m,n,r,e,Htr_unsys,s,N):
     big_c = hashlib.sha256();
     big_c.update(big_c_before_hash.encode('utf-8'));
     big_c = big_c.hexdigest();
-    big_c_dec = Integer(big_c, 16);
-    big_c_bin = big_c_dec.digits(2); #Hashed commitment is converted from HEX to BIN ('list' object from LSB to MSB)
+    big_c_bin = hex_to_bin(big_c);
 
-    #Re-Hashing of final commitment (if bits are not enough)
-    big_c_2 = hashlib.sha256();
-    big_c_2.update(big_c.encode('utf-8'));
-    big_c_2 = big_c_2.hexdigest();
-    big_c_2_dec = Integer(big_c_2, 16);
-    big_c_2_bin = big_c_2_dec.digits(2);
-    big_c_bin = Integer(''.join(str(e) for e in big_c_bin)+''.join(str(e) for e in big_c_2_bin)).digits(2); #Hashed commitment is converted from HEX to BIN ('list' object from LSB to MSB)
-
+    #Re-Hashing of final commitment (if bits frome one digest are not enough)
+    #2 bits needed per round, every digest has 256 bits: considering the first round already done (so -1) and considering that int() approximates down and we need to approximate up (so +1),
+    #the still needed number of hashes is int(2*N/256) - 1 + 1 = int(2*N/256), which is the upper bound of range() if the lower is 0.
+    big_c_last = big_c;
+    for i in range(0,int(2*N/256)): 
+        big_c_next = hashlib.sha256();
+        big_c_next.update(big_c_last.encode('utf-8'));
+        big_c_next = big_c_next.hexdigest();
+        big_c_next_bin = hex_to_bin(big_c_next);
+        big_c_bin = Integer(''.join(str(e) for e in big_c_bin)+''.join(str(e) for e in big_c_next_bin)).digits(2); #Hashed commitment is converted from HEX to BIN ('list' object from LSB to MSB)
+        big_c_last = big_c_next;
     
     
     #verification over N rounds starts    
-    verifier_c_before_hash=''
+    verifier_c_before_hash= str(mex); #The overall verifier commitment, initialized with the signed message
 
     for j in range(0,N):
 
@@ -229,9 +237,3 @@ def multiple_rounds_sim(Fq,m,n,r,e,Htr_unsys,s,N):
     else:
         ok = 0;
     return(ok);    
-    
-
-
-
-#pensa a come implementare merkle tree
-

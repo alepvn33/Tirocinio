@@ -1,4 +1,4 @@
-data inizio: 20/09
+data inizio: Martedì 20/09/22
 data fine: 
 
 Punto di partenza: 
@@ -13,3 +13,12 @@ Cose da fare:
    In questo modo, moltiplicazioni tra elementi di questo insieme danno altri elementi dell'insieme,
    perciò monomiali (tao) ristretti danno vettori i cui elementi sono ristretti.
 3) Iniziare a vedere come implementare merkle tree su SageMath.
+
+Cose fatte:
+1) Fatto il 20/09/22. Passo da stringa hex a intero (Integer e non int perchè questi due tipi sono diversi: il primo è 'sage.rings.integer.Integer', il secondo è 'int'), 
+   poi da intero a binario.
+2) Fatto il 20/09/22. Occhio ad utilizzare solo le funzioni che usano il "current sage random number state" del module{sage.misc.randstate} e non quelle di python 
+   classico (module{random}), perchè non usano gli stessi seed! 
+   Il set ristretto viene generato, includendo anche lo 0, come tutte le possibili potenze di una base "m" scelta in Fq. Per fare ciò viene valutato l'ordine 
+   moltiplicativo di m in Fq.
+   

@@ -11,13 +11,12 @@ from sage.misc.prandom import choice
 load('rest_CVE_utils.sage')
 
 #scheme parameters
-# Select prime integer q (size of the field)
-q = _sage_const_31 ;
-# Select power base m which generates the restricted set
-m = _sage_const_2 ;
+q = _sage_const_31 ; # Select prime integer q (size of the field)
+m = _sage_const_2 ; # Select power base m which generates the restricted set
 n = _sage_const_256 ;
 r = _sage_const_204 ;
 N = _sage_const_135 ;
+mex = "Ciao core"; # Message to be signed
 
 #Preparations to execute the protocol
 Fq=GF(q); #finite field with q elements
@@ -40,10 +39,10 @@ print("----------------------------");
 
 
 #Multiple rounds (with compression) verification    
-print("Running N rounds with compression...");
-ok = multiple_rounds_sim(Fq,m,n,r,e,Htr_unsys,s,N);
+print("Signed message: "+str(mex)+"\nRunning N rounds with compression...");
+ok = multiple_rounds_sim(Fq,mex,m,n,r,e,Htr_unsys,s,N);
 if ok==_sage_const_1 :
-    print("ACCEPTED!");
+    print("Signature ACCEPTED!");
 else:
-    print("REJECTED!");
+    print("Signature REJECTED!");
 
