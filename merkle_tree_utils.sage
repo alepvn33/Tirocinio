@@ -1,3 +1,4 @@
+#Hashes a couple of the last level nodes into a next level node
 def joiner(tree):
     last_level = len(tree)-1; #Last filled level
     tree.append([]);    #Beginning of next level
@@ -16,17 +17,16 @@ def joiner(tree):
 
 ########################################################
 
-def merkle_tree_generator(data,num_blocks):
-    data_bin = ''.join(format(ord(x), 'b') for x in data);
+def merkle_tree_generator(data,num_blocks,debug):
+    data_bin = ''.join(format(ord(x), 'b') for x in str(data)); #Input data in binary representation
     blocks = []; leaves = [];
     block_len = int(len(data_bin)/num_blocks)+1; #Bit lenght of each block
 
-    #Padding the data string
-    pad_bits_num = len(data_bin)-block_len*num_blocks;
-    ''.join('0' for x in range(0,pad_bits_num));
-
     for i in range(0,num_blocks):
-        blocks.append(data_bin[i:i*block_len]);
+        #Debug printing
+        if debug:
+            print("Data block no."+str(i).zfill(2)+": "+str(data_bin[i*block_len:(i+1)*block_len]))   
+        blocks.append(data_bin[i*block_len:(i+1)*block_len]);
         leaves.append(hashlib.sha256());
         leaves[i].update(blocks[i].encode('utf-8'));
         leaves[i] = leaves[i].hexdigest();
@@ -39,5 +39,10 @@ def merkle_tree_generator(data,num_blocks):
     #Building the upper levels until the root is reached
     while len(tree[len(tree)-1]) != 1:
         tree = joiner(tree);
+
+    #Debug printing
+    if debug: 
+        print("\n****************\nBlock length: "+str(block_len)+"\nBinary data lenght: "+str(len(data_bin))+"\nBlocks number: "+str(num_blocks)+"\n****************\n\nTree:")
+        print(tree)
     
     return tree
