@@ -5,9 +5,12 @@ from sage.all_cmdline import *   # import sage library
 
 _sage_const_10 = Integer(10); _sage_const_0 = Integer(0); _sage_const_2 = Integer(2); _sage_const_1 = Integer(1)
 import hashlib;
-load('merkle_tree_utils.sage');
+import merkletools;
+load('merkle_tree_utils.sage')
+load('merkletools.sage')
 
-debug = True
+mt = MerkleTools()
+
 data = "Ciao sono Alessio e sto studiando i Merkle Tree";
 num_blocks = _sage_const_10 ; #Number of data blocks or number of tree leaves
 #Leaves in perfect binary trees must be a power of 2 number, so num_blocks is approximated upper to the next power of 2
@@ -16,9 +19,28 @@ while _sage_const_2 **i < num_blocks:
     i+=_sage_const_1 ;
 num_blocks = _sage_const_2 **i;
 
+data_bin = ''.join(format(ord(x), 'b') for x in str(data)); #Input data in binary representation
+blocks = [];
+block_len = int(len(data_bin)/num_blocks)+_sage_const_1 ; #Bit lenght of each block
 
-#Debug printing
-if debug:   print("\n*****DEBUG MODE*****\n\nData: "+str(data)+'\n')
+for i in range(_sage_const_0 ,num_blocks): 
+    blocks.append(data_bin[i*block_len:(i+_sage_const_1 )*block_len]);
+    mt.add_leaf(blocks[i], True)
 
-tree = merkle_tree_generator(data,num_blocks,debug)
+mt.make_tree();
+
+if mt.is_ready:
+    merkleRoot =  mt.get_merkle_root();
+    for i in range(_sage_const_0 ,num_blocks):
+        targetHash = hashlib.sha256();
+        targetHash.update(blocks[i].encode('utf-8'));
+        targetHash = targetHash.hexdigest();
+        proof = mt.get_proof(i)
+        is_valid = mt.validate_proof(proof, targetHash, merkleRoot)
+        if is_valid:    print("Block no."+str(i+_sage_const_1 ).zfill(_sage_const_2 )+": VALID")
+        else:   print("Block no."+str(i+_sage_const_1 ).zfill(_sage_const_2 )+": NOT VALID")
+else: print("Tree not created")
+
+
+
 

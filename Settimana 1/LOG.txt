@@ -21,9 +21,5 @@ Cose fatte:
    classico (module{random}), perchè non usano gli stessi seed! 
    Il set ristretto viene generato, includendo anche lo 0, come tutte le possibili potenze di una base "m" scelta in Fq. Per fare ciò viene valutato l'ordine 
    moltiplicativo di m in Fq.
-3) Fatto il 21/09/22. Ho utilizzato la classe sage.combinat.ordered_tree.LabelledOrderedTree di SageMath. Dopo aver definito il messaggio da hashare e il numero di blocchi, 
-   esso viene separato in blocchi, ognuno dei quali viene hashato per formare le foglie dell'albero. Successivamente, tramite la funzione joiner() fatta da me le label dei nodi 
-   dell'ultimo livello costruito dell'albero vengono hashate due a due per formare le label dei nodi del livello superiore, fino ad arrivare al nodo root. 
-   Non si riesce a visualizzare graficamente perchè dallo script non funziona l'oggetto .plot() dell'albero, copiando lo script sulla CL interattiva invece funziona ma le label 
-   esadecimali sono lunghissime rendendo la foto illeggibile. Verificando però alcuni hash (considerando che i digest sono stringhe) su https://emn178.github.io/online-tools/sha256.html
-   i risultati sono giusti.
+3) Fatto il 21/09/22. Ho utilizzato la libreria python merkletools. Dopo aver definito il messaggio da hashare e il numero di blocchi, 
+   esso viene separato in blocchi, ognuno dei quali viene caricato nelle foglie dell'albero (dopo essere hashati in automatico).
