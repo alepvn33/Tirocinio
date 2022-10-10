@@ -1,0 +1,14 @@
+data inizio: Lunedì 26/09/22
+data fine: 
+
+Punto di partenza: 
+
+
+Cose da fare:
+1) Leggere attacchi ISD in "A survey on code-based cryptography"
+2) Capire i tre limiti di Gilbert-Varshamov: i primi due su "Notes Gilbert-Varshamov bound", il terzo su "Ron Roth Introduction
+	to coding theory"
+3) Cercare di capire i conti del costo dell'attacco brute force nell'articolo iniziale
+
+Cose fatte:
+1) 

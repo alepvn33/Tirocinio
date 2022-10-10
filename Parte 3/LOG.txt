@@ -1,0 +1,27 @@
+data inizio: Venerdì 07/10/22
+data fine: 
+
+Punto di partenza: Paper "Designing a Practical Code-based Signature Scheme from Zero-Knowledge Proofs with Trusted Setup"
+
+
+Cose da fare:
+1) Implementare MPC-in-the-head (Helper...) in SageMath
+2) Implementare MPC-in-the-head ma SENZA HELPER in Sagemath
+
+Cose fatte:
+1) Implementazione MPC-in-the-head (solo schema id). Le funzioni più difficili sono:
+	FMW: crea vettori random lunghi n con peso w. Per fare ciò prendo a caso un vettore "a" di lunghezza w all'interno del
+	set Fq*, definisco un vettore "b" lungo n composto da tutti zeri e prendo una permutazione a caso tra quelle dei vettori
+	lunghezza n. Infine, sostituisco le entrate di "b" i cui indici sono le prime w componenti della permutazione scelta
+	con il vettore "a".
+	find_isometry: trova funzione monomiale tale che e = tau(e_tilde). Per fare ciò trovo i supporti di e ed e_tilde, 
+	scelgo una permutazione a caso tra quelle delle componenti del supporto di e_tilde ("tau_perm_supp"), trovo il 
+	complemento del supporto di e_tilde e analogamente ne scelgo una permutazione a caso ("tau_perm_zeros"). Per ottenere 
+	il vettore permutazione totale, devo fare il merging di queste due permutazioni (liste), stando attento a mettere le 
+	componenti della lista "tau_perm_supp" in corrispondenza del supporto di e (dobbiamo imporre il vincolo che la 
+	permutazione del supporto di e_tilde dia come risultato il supporto di e). Infine, per trovare il vettore dei valori,
+	si deve fare semplicemente la formula inversa (divisione) quando la componente di e_tilde è diversa da 0, altrimenti
+	si sceglie un valore a caso di q (tanto verrà moltiplicato per 0 e restituirà quindi 0). In teoria non servirebbe 
+	trovare le permutazioni e i valori che mappano gli zeri di e_tilde negli zeri di e, però per non rivelare info ad un
+	attaccante riguardo il supporto di e si deve generalizzare tau, cioè "fare finta" di permutare e moltiplicare anche
+	dove so che ci sono gli zeri di e.
