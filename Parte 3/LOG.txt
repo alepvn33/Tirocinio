@@ -21,7 +21,7 @@ Cose fatte:
 	componenti della lista "tau_perm_supp" in corrispondenza del supporto di e (dobbiamo imporre il vincolo che la 
 	permutazione del supporto di e_tilde dia come risultato il supporto di e). Infine, per trovare il vettore dei valori,
 	si deve fare semplicemente la formula inversa (divisione) quando la componente di e_tilde è diversa da 0, altrimenti
-	si sceglie un valore a caso di q (tanto verrà moltiplicato per 0 e restituirà quindi 0). In teoria non servirebbe 
+	si sceglie un valore a caso di Fq* (tanto verrà moltiplicato per 0 e restituirà quindi 0). In teoria non servirebbe 
 	trovare le permutazioni e i valori che mappano gli zeri di e_tilde negli zeri di e, però per non rivelare info ad un
 	attaccante riguardo il supporto di e si deve generalizzare tau, cioè "fare finta" di permutare e moltiplicare anche
 	dove so che ci sono gli zeri di e.
