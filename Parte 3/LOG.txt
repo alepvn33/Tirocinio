@@ -9,7 +9,12 @@ Cose da fare:
 2) Implementare MPC-in-the-head ma SENZA HELPER in Sagemath
 
 Cose fatte:
-1) Implementazione MPC-in-the-head (solo schema id). Le funzioni più difficili sono:
+1) Implementazione MPC-in-the-head (solo schema id). Gli attori sono suddivisi in classi, in cui ogni funzione rappresenta
+	una delle fasi realizzate da quell'utente (es. la classe "Prover" ha le funzioni "P1" e "P2"). Questo per facilitare
+	la condivisione tra le varie funzioni delle variabili note ad ogni singolo attore (es. Prover genera e_tilde in "P1"
+	ma non lo passa, come fa lo stesso Prover ad utilizzare tale info nella funzione "P2"? La variabile e_tilde viene
+ 	salvata come attributo della classe self.e_tilde, in questo modo tutte i metodi della classe "Prover" possono usarla.
+	Le funzioni più difficili sono:
 	FMW: crea vettori random lunghi n con peso w. Per fare ciò prendo a caso un vettore "a" di lunghezza w all'interno del
 	set Fq*, definisco un vettore "b" lungo n composto da tutti zeri e prendo una permutazione a caso tra quelle dei vettori
 	lunghezza n. Infine, sostituisco le entrate di "b" i cui indici sono le prime w componenti della permutazione scelta

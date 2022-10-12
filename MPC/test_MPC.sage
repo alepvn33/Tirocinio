@@ -1,7 +1,7 @@
 reset();
 
-import hashlib;
-import numpy;
+import hashlib
+import numpy
 load('MPC_utils.sage')
 
 #Scheme parameters
@@ -10,6 +10,7 @@ n = 256;
 r = 204;
 w = 10; #Private key weight
 _lambda = 128 #Seed bit lenght
+N = 100 #Number of instances
 
 #Preparations to execute the protocol
 Fq=GF(q); #finite field with q elements

@@ -112,6 +112,7 @@ def H(seed):
     r_v = matrix(GF(2),q,_lambda)
     c_v = [""]*len(Fq)
 
+    set_random_seed(seed)
     for v in Fq:
         r_v[v] = random_vector(GF(2),_lambda)
         c_v[v] = hash(str(r_v[v])+str(u_helper+v*e_tilde_helper))
