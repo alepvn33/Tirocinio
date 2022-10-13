@@ -7,9 +7,10 @@ Punto di partenza: Paper "Designing a Practical Code-based Signature Scheme from
 Cose da fare:
 1) Implementare MPC-in-the-head (Helper...) in SageMath
 2) Implementare MPC-in-the-head ma SENZA HELPER in Sagemath
+3) Applicare Fiat-Shamir a 2)
 
 Cose fatte:
-1) Implementazione MPC-in-the-head (solo schema id). Gli attori sono suddivisi in classi, in cui ogni funzione rappresenta
+1) Implementazione MPC-in-the-head con Helper (solo schema id). Gli attori sono suddivisi in classi, in cui ogni funzione rappresenta
 	una delle fasi realizzate da quell'utente (es. la classe "Prover" ha le funzioni "P1" e "P2"). Questo per facilitare
 	la condivisione tra le varie funzioni delle variabili note ad ogni singolo attore (es. Prover genera e_tilde in "P1"
 	ma non lo passa, come fa lo stesso Prover ad utilizzare tale info nella funzione "P2"? La variabile e_tilde viene
@@ -30,3 +31,11 @@ Cose fatte:
 	trovare le permutazioni e i valori che mappano gli zeri di e_tilde negli zeri di e, però per non rivelare info ad un
 	attaccante riguardo il supporto di e si deve generalizzare tau, cioè "fare finta" di permutare e moltiplicare anche
 	dove so che ci sono gli zeri di e.
+2) Implementazione MPC-in-the-head senza Helper (solo schema id). Simile a caso precedente, ora però gli attori possiedono anche dei metodi 	
+	"di ordine superiore" (quelli indicati con i commenti in lettera maiuscola), che rappresentano le fasi da I a IV dello schema ID, in 
+	cui vengono richiamati i metodi definiti nel punto 1).
+3) Realizzazione schema firma applicando Fiat-Shamir a 2). Poche le differenze. Ora gli attori sono solo 2: Signer e Verifier, ognuno con
+	i propri metodi. Ancora una volta, sono stati riciclati tali e quali i metodi di 2), l'unica differenza sta nella generazione della
+	challenge (I,ch): applicando Fiat-Shamir infatti, la challenge deve provenire da Hash(m,cmt)=Hash(m,aux,c). Unica cosa, invece di 
+	generare la challenge direttamente dai bit del digest, è più comodo utilizzare il digest per settare il seed con cui poi I e ch vengono
+	estratti a caso. Tanto si fa solo una volta, non è rilevante in termini di complessità di esecuzione.
