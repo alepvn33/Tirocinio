@@ -8,6 +8,7 @@ Cose da fare:
 1) Implementare MPC-in-the-head (Helper...) in SageMath
 2) Implementare MPC-in-the-head ma SENZA HELPER in Sagemath
 3) Applicare Fiat-Shamir a 2)
+4) Aggiungere ottimizzazioni a 2) (MerkleTree, SeedTree...)
 
 Cose fatte:
 1) Implementazione MPC-in-the-head con Helper (solo schema id). Gli attori sono suddivisi in classi, in cui ogni funzione rappresenta

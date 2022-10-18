@@ -127,7 +127,7 @@ class MerkleTools(object):
     def get_root_from_path(self, proof, target_hash):
         target_hash = bytearray.fromhex(target_hash)
         if len(proof) == 0:
-            return target_hash == merkle_root
+            return target_hash
         else:
             proof_hash = target_hash
             for p in proof:
@@ -139,4 +139,4 @@ class MerkleTools(object):
                     # the sibling is a right node
                     sibling = bytearray.fromhex(p['right'])
                     proof_hash = self.hash_function(proof_hash + sibling).digest()
-            return proof_hash
+            return self._to_hex(proof_hash)
